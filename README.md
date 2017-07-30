@@ -1,2 +1,1 @@
-# Iudex
-Haploid genetic screening pipeline
+# Iudex: A pipeline for the analysis of haploid genetic screening sequencing data
