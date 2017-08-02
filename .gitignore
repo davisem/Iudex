@@ -1,2 +1,4 @@
 *.fastq
 nextflow.config
+venv
+*.pyc

@@ -69,3 +69,4 @@ process MakeInsertionTables {
     intron_exon_counts.py -i $params.intron_bed -e $params.exon_bed -b bed -o insertion_table
     """
 }
+
