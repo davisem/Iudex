@@ -15,6 +15,7 @@ import tempfile
 from pybedtools import BedTool
 from Iudex.intron_exon_counts import InsertionTableBuilder, InsertionRecord
 
+
 class InsertionTableBuilderTests(unittest.TestCase):
 
 	def setUp(self):

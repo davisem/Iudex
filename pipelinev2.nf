@@ -1,6 +1,8 @@
 #!/usr/bin/env nextflow
+params.help = false
+params.threads = 1
 
-params.ref_genome = '/Users/ericdavis/bin/bowtie-0.12.8/indexes/hg19.ebwt/hg19'
+params.genome_index = "$baseDir/venv/hg38"
 params.input_path = "$PWD"
 params.output_dir = "$PWD"
 params.intron_bed = ''
@@ -25,42 +27,18 @@ process AlignToGenome {
     file reads from gene_trap_insertions
 
     output:
-    file alignment into aligned_sams
+    file alignment.bam into aligned_sams
 
     """
-    bowtie -m1 -v1 --best -3 14 $params.ref_genome $reads -S alignment
-    """
-}
-
-process samtToBam {
-    
-    input:
-    file alignment from aligned_sams
-
-    output:
-    file output into aligned_bams
-
-    """
-    samtools view -bS -o output $alignment
+    bowtie2 -x ${params.genome_index} -p ${params.threads} -U $reads -S alignment.sam
+    samtools view -bS alignment.sam | samtools sort -@ ${params.threads} -o alignment.bam
     """
 }
 
-process bamToBed {
-    
-    input: 
-    file bam from aligned_bams
-
-    output:
-    file bed into beds
-
-    """
-    bedtools bamtobed -i $bam > bed
-    """
-}
 
 process MakeInsertionTables {
     input:
-    file bed from beds
+    file bed from aligned_sams
 
     output:
     file insertion_table into insertion_table_csvs

@@ -25,9 +25,17 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v$BEDTOOLS2_VERSIO
     && cp $BEDTOOLS2_BIN $BEDTOOLS2_DEST \
     && rm /opt/$BEDTOOLS2_SOURCE
 
-#Install
+# Install Pandas
 RUN pip install pybedtools \
     pip install pandas
+
+# Install Bowtie2
+RUN git clone https://github.com/BenLangmead/bowtie2.git && \
+    cd bowtie2 && \
+    make NO_TBB=1 && \
+    make install && \
+    cd && \
+    rm -rf /bowtie2
 
 #Include bed annotations
 COPY annotations/*

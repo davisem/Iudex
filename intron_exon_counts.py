@@ -34,8 +34,47 @@ def parse_cmdline_params(cmdline_params):
     return parser.parse_args(cmdline_params)
 
 
-class InsertionTableBuilder(object):
+class InsertionRecord(object):
     
+    FIELD_NAMES = ['chrom', 'start', 'insertion_orientation', 'gene']
+    GENE_INDEX = 9
+    GENE_STRAND_IDX = 11
+    PLUS_STRAND = '+'
+    
+    ORIENTATION_SENSE_KEY = 'SENSE'
+    ORIENTATION_ANTISENSE_KEY = 'ANTISENSE'
+
+    __slots__ = ['chrom', 'start', 'orientation', 'gene']
+
+    def __init__(self, bedtool_record):
+        self.chrom = bedtool_record.chrom
+        self.start = self.getInsertionStart(bedtool_record)
+        self.orientation = self.getOrientation(bedtool_record)
+        self.gene = bedtool_record.fields[self.GENE_INDEX]
+
+    def toIterable(self):
+        
+        return (self.chrom, self.start, self.orientation, self.gene)
+
+    def getOrientation(self, bedtool_line):
+        
+        return self.ORIENTATION_SENSE_KEY if bedtool_line.strand == bedtool_line.fields[self.GENE_STRAND_IDX] else self.ORIENTATION_ANTISENSE_KEY
+
+    def getInsertionStart(self, bedtool_line):
+        return bedtool_line.start if bedtool_line.strand == self.PLUS_STRAND else bedtool_line.stop
+
+    def __repr__(self):
+        return "<{}>:{},{},{},{}".format(self.__class__.__name__, self.chrom, self.start, self.orientation, self.gene)
+
+    def __eq__(self, other):
+        return all([self.chrom == other.chrom, self.start == other.start, self.orientation == other.orientation, self.gene==other.gene])
+
+    def __hash__(self):
+        return hash(self.__repr__())
+
+
+class InsertionTableBuilder(object):
+
     KEYS = ['sense', 'antisense', 'exon']
 
     def __init__(self, intron_path, exon_path):
@@ -91,48 +130,11 @@ class InsertionTableBuilder(object):
         return joined.fillna(value=0)
 
 
-class InsertionRecord(object):
-    
-    FIELD_NAMES = ['chrom', 'start', 'insertion_orientation', 'gene']
-    GENE_INDEX = 9
-    GENE_STRAND_IDX = 11
-    PLUS_STRAND = '+'
-    
-    ORIENTATION_SENSE_KEY = 'SENSE'
-    ORIENTATION_ANTISENSE_KEY = 'ANTISENSE'
+if __name__ == '__main__':
 
-    __slots__ = ['chrom', 'start', 'orientation', 'gene']
+    opts= parse_cmdline_params(sys.argv[1:])
 
-    def __init__(self, bedtool_record):
-        self.chrom = bedtool_record.chrom
-        self.start = self.getInsertionStart(bedtool_record)
-        self.orientation = self.getOrientation(bedtool_record)
-        self.gene = bedtool_record.fields[self.GENE_INDEX]
-
-    def toIterable(self):
-        
-        return (self.chrom, self.start, self.orientation, self.gene)
-
-    def getOrientation(self, bedtool_line):
-        
-        return self.ORIENTATION_SENSE_KEY if bedtool_line.strand == bedtool_line.fields[self.GENE_STRAND_IDX] else self.ORIENTATION_ANTISENSE_KEY
-
-    def getInsertionStart(self, bedtool_line):
-        return bedtool_line.start if bedtool_line.strand == self.PLUS_STRAND else bedtool_line.stop
-
-    def __repr__(self):
-        return "<{}>:{},{},{},{}".format(self.__class__.__name__, self.chrom, self.start, self.orientation, self.gene)
-
-    def __eq__(self, other):
-        return all([self.chrom == other.chrom, self.start == other.start, self.orientation == other.orientation, self.gene==other.gene])
-
-    def __hash__(self):
-        return hash(self.__repr__())
-
-
-
-
-
-
-
+    table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
+    table_builder.buildTable(opts.bed_file, opts.output_file)
+    return output_file
 
