@@ -16,6 +16,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib \
  && rm -rf /var/lib/apt/lists/*
 
+# install HTSlib
+RUN git clone https://github.com/samtools/htslib.git && \
+    cd htslib && \
+    autoheader && \
+    autoconf && \
+    ./configure && \
+    make && \
+    make install && \
+    cd / && \
+    rm -rf htslib
+
+RUN wget https://github.com/samtools/samtools/releases/download/1.3.1/samtools-1.3.1.tar.bz2 && \
+    tar -xvf samtools-1.3.1.tar.bz2 && \
+    cd samtools-1.3.1 && \
+    make && \
+    make install && \
+    cd / && \
+    rm -rf samtools-1.3.1 && \
+    rm samtools-1.3.1.tar.bz2
+
 
 # Install Bedtools2
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v$BEDTOOLS2_VERSION/$BEDTOOLS2_SOURCE -O /opt/$BEDTOOLS2_SOURCE \

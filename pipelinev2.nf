@@ -1,16 +1,29 @@
 #!/usr/bin/env nextflow
-params.help = false
-params.threads = 1
 
-params.genome_index = "$baseDir/venv/hg38"
-params.input_path = "$PWD"
-params.output_dir = "$PWD"
-params.intron_bed = ''
-params.exon_bed = ''
+/*if( params.help ) {
+    help()
+    return
+}*/
 
+if( !nextflow.version.matches('0.25+') ) {
+    println "This workflow requires Nextflow version 0.25 or greater -- You are running version $nextflow.version"
+    println "Run ./nextflow self-update to update Nextflow to the latest available version."
+    exit 1
+}
 
+if( params.index ) { 
+    index = Channel.fromPath(params.index).toSortedList() 
+    if( !index.exists() ) exit 1, "Genome index files could not be found: ${params.index}"    
+}
+
+if( params.reference ) {     
+    reference = file(params.reference)
+    if( !reference.exists() ) exit 1, "Reference genome file could not be found:${params.reference}"          
+}
+
+threads = params.threads
 /*
- * Aligns fastq files to hg19
+ * Aligns fastq files to hg38
  */
 
 Channel
@@ -18,23 +31,30 @@ Channel
     .ifEmpty { exit 1, "Fastq files could not be found in: ${params.input_path}" }
     .set { gene_trap_insertions }
 
+/*
+ * Aligns fastqs to genome via bwa
+ */
 
 process AlignToGenome {
 
     publishDir "${params.output_dir}/Alignment", mode: "copy"
 
     input:
-    file reads from gene_trap_insertions
+    file fastq from gene_trap_insertions
+    file idx from index.first()
 
     output:
-    file alignment.bam into aligned_sams
+    file alignment into aligned_sams
 
     """
-    bowtie2 -x ${params.genome_index} -p ${params.threads} -U $reads -S alignment.sam
-    samtools view -bS alignment.sam | samtools sort -@ ${params.threads} -o alignment.bam
+    bwa mem index fastq -t ${threads} > sam
+    samtools view -bS sam | samtools sort -o alignment
     """
 }
 
+/*
+ * Counts the gene trap insertions in genes, and compiles metrics
+ */
 
 process MakeInsertionTables {
     input:

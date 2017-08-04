@@ -47,20 +47,32 @@ class InsertionRecord(object):
     __slots__ = ['chrom', 'start', 'orientation', 'gene']
 
     def __init__(self, bedtool_record):
+        """
+        Init method for class
+        :param BedTool: A line in a BedTool object
+        """
         self.chrom = bedtool_record.chrom
         self.start = self.getInsertionStart(bedtool_record)
         self.orientation = self.getOrientation(bedtool_record)
         self.gene = bedtool_record.fields[self.GENE_INDEX]
 
     def toIterable(self):
+        """
+        Retruns an iterable representation of the record
+        """
         
         return (self.chrom, self.start, self.orientation, self.gene)
 
     def getOrientation(self, bedtool_line):
-        
+        """
+        Gets the orientation of the gene_trap insertion with resepect to the gene
+        """
         return self.ORIENTATION_SENSE_KEY if bedtool_line.strand == bedtool_line.fields[self.GENE_STRAND_IDX] else self.ORIENTATION_ANTISENSE_KEY
 
     def getInsertionStart(self, bedtool_line):
+        """
+        Gets the start coordinate of the gene_trap insertion
+        """
         return bedtool_line.start if bedtool_line.strand == self.PLUS_STRAND else bedtool_line.stop
 
     def __repr__(self):
@@ -108,13 +120,19 @@ class InsertionTableBuilder(object):
         return pd.DataFrame.from_records([x.toIterable() for x in unique_insertions], columns=InsertionRecord.FIELD_NAMES)
 
     def buildTable(self, input_file):
+        """
+        Builds a table containing the insertion counts.
+        """
         
         input_bedtool = BedTool(input_file)
 
+        # get sense strand insertions in gene introns
         sense = self.intersectIntronsSense(input_bedtool)
         
+        # get antisense insertions in gene introns
         antisense = self.intersectIntronsAntisense(input_bedtool)
         
+        # get both sense and antisense insertions in gene exons
         exon = self.intersectExons(input_bedtool)
         
         frames = map(self.toDataFrame, [sense, antisense, exon])
@@ -127,6 +145,7 @@ class InsertionTableBuilder(object):
             count_dfs.append(counts)
         
         joined = pd.concat(count_dfs, axis=1)
+        
         return joined.fillna(value=0)
 
 
