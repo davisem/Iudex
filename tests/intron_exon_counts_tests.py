@@ -15,6 +15,28 @@ import tempfile
 from pybedtools import BedTool
 from Iudex.containers.python.intron_exon_counts import InsertionTableBuilder, InsertionRecord
 
+INPUT_BED=\
+"""chr1	101	102	BLAH	0	+
+chr1	201	202	AK	0	-
+"""
+
+INTRON_BED=\
+"""chr1	100	200	FOO	0	+
+chr1	200	300	BAR	0	+
+"""
+
+EXON_BED=\
+"""chr1	200	300	FOO	0	+
+"""
+
+
+DUPLICATE_BED=\
+"""chr1	100	300	BLAH	0	+	chr1	0	500	GENE1	0	+
+chr1	200	300	BLAH	0	+	chr1	0	500	GENE1	0	+
+chr1	200	400	BLAH	0	-	chr1	0	500	GENE1	0	+
+chr1	300	400	BLAH	0	-	chr1	0	500	GENE1	0	+
+"""
+
 
 class InsertionTableBuilderTests(unittest.TestCase):
 
@@ -119,29 +141,3 @@ class InsertionRecordTests(unittest.TestCase):
 		records = [InsertionRecord(x) for x in bedtool]
 		self.assertTrue(records[0] == records[0])
 		self.assertFalse(records[0] == records[1])
-
-
-
-INPUT_BED=\
-"""chr1	101	102	BLAH	0	+
-chr1	201	202	AK	0	-
-"""
-
-INTRON_BED=\
-"""chr1	100	200	FOO	0	+
-chr1	200	300	BAR	0	+
-"""
-
-EXON_BED=\
-"""chr1	200	300	FOO	0	+
-"""
-
-
-DUPLICATE_BED=\
-"""chr1	100	300	BLAH	0	+	chr1	0	500	GENE1	0	+
-chr1	200	300	BLAH	0	+	chr1	0	500	GENE1	0	+
-chr1	200	400	BLAH	0	-	chr1	0	500	GENE1	0	+
-chr1	300	400	BLAH	0	-	chr1	0	500	GENE1	0	+
-"""
-
-

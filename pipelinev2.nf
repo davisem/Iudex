@@ -25,6 +25,7 @@ Channel
     .ifEmpty { exit 1, "Fastq files could not be found in: ${params.input_path}" }
     .set { gene_trap_insertions }
 
+
 process AlignToGenome {
 
     publishDir "${params.output_dir}/Alignment", mode: "copy"
@@ -62,4 +63,3 @@ process MakeInsertionTables {
     python /src/intron_exon_counts.py -i ${intron_bed} -e ${exon_bed} -b ${bam} -o "${bam.baseName}.table"
     """
 }
-
