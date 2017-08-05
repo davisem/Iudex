@@ -11,17 +11,11 @@ if( !nextflow.version.matches('0.25+') ) {
     exit 1
 }
 
-if( params.index ) { 
-    index = Channel.fromPath(params.index).toSortedList() 
-    if( !index.exists() ) exit 1, "Genome index files could not be found: ${params.index}"    
-}
-
-if( params.reference ) {     
-    reference = file(params.reference)
-    if( !reference.exists() ) exit 1, "Reference genome file could not be found:${params.reference}"          
-}
-
 threads = params.threads
+index = Channel.fromPath(params.index).toSortedList()
+intron_bed = file(params.intron_bed)
+exon_bed = file(params.exon_bed)
+
 /*
  * Aligns fastq files to hg38
  */
@@ -31,24 +25,20 @@ Channel
     .ifEmpty { exit 1, "Fastq files could not be found in: ${params.input_path}" }
     .set { gene_trap_insertions }
 
-/*
- * Aligns fastqs to genome via bwa
- */
-
 process AlignToGenome {
 
     publishDir "${params.output_dir}/Alignment", mode: "copy"
 
     input:
     file fastq from gene_trap_insertions
-    file idx from index.first()
+    file idx from index
 
     output:
-    file alignment into aligned_sams
+    file "${fastq.baseName}.aln" into aligned_bams
 
     """
-    bwa mem index fastq -t ${threads} > sam
-    samtools view -bS sam | samtools sort -o alignment
+    bwa mem hg38.fa ${fastq} -t ${threads} > sam
+    samtools view -bS sam | samtools sort -o "${fastq.baseName}.aln"
     """
 }
 
@@ -58,13 +48,18 @@ process AlignToGenome {
 
 process MakeInsertionTables {
     input:
-    file bed from aligned_sams
+    
+    file bam from aligned_bams
+    file intron_bed
+    file exon_bed
+
 
     output:
-    file insertion_table into insertion_table_csvs
+    file "${bam.baseName}.table" into insertion_table_csvs
 
     """
-    intron_exon_counts.py -i $params.intron_bed -e $params.exon_bed -b bed -o insertion_table
+
+    python /src/intron_exon_counts.py -i ${intron_bed} -e ${exon_bed} -b ${bam} -o "${bam.baseName}.table"
     """
 }
 

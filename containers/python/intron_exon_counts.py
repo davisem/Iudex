@@ -8,6 +8,7 @@ __maintainer__ = "Eric Davis"
 __email__ = "emdavis48@gmail.com"
 __status__ = ""
 
+import sys
 import argparse
 import pandas as pd
 from pybedtools import BedTool
@@ -28,7 +29,7 @@ def parse_cmdline_params(cmdline_params):
     parser.add_argument('-b', '--bed_file', type=str, required=True,
                         help='Provide the path to the bed file for intersection')
 
-    parser.add_argument('-o', '--output_file', type=str, require=True,
+    parser.add_argument('-o', '--output_file', type=str, required=True,
                         help="Provide an output filename")
 
     return parser.parse_args(cmdline_params)
@@ -59,6 +60,7 @@ class InsertionRecord(object):
     def toIterable(self):
         """
         Retruns an iterable representation of the record
+
         """
         
         return (self.chrom, self.start, self.orientation, self.gene)
@@ -119,21 +121,22 @@ class InsertionTableBuilder(object):
         
         return pd.DataFrame.from_records([x.toIterable() for x in unique_insertions], columns=InsertionRecord.FIELD_NAMES)
 
-    def buildTable(self, input_file):
+    def buildTable(self, input_file, output_file):
         """
         Builds a table containing the insertion counts.
         """
         
         input_bedtool = BedTool(input_file)
+        input_bed = input_bedtool.bam_to_bed()
 
         # get sense strand insertions in gene introns
-        sense = self.intersectIntronsSense(input_bedtool)
+        sense = self.intersectIntronsSense(input_bed)
         
         # get antisense insertions in gene introns
-        antisense = self.intersectIntronsAntisense(input_bedtool)
+        antisense = self.intersectIntronsAntisense(input_bed)
         
         # get both sense and antisense insertions in gene exons
-        exon = self.intersectExons(input_bedtool)
+        exon = self.intersectExons(input_bed)
         
         frames = map(self.toDataFrame, [sense, antisense, exon])
 
@@ -146,7 +149,8 @@ class InsertionTableBuilder(object):
         
         joined = pd.concat(count_dfs, axis=1)
         
-        return joined.fillna(value=0)
+        filled = joined.fillna(value=0)
+        filled.to_csv(output_file, sep='\t')
 
 
 if __name__ == '__main__':
@@ -155,5 +159,5 @@ if __name__ == '__main__':
 
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
     table_builder.buildTable(opts.bed_file, opts.output_file)
-    return output_file
+    
 

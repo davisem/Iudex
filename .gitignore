@@ -3,3 +3,6 @@ nextflow.config
 venv
 *.pyc
 nextflow_cloud.config
+work/
+.nextflow/
+.DS_Store

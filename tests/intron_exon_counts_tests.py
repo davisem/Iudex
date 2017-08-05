@@ -13,7 +13,7 @@ import unittest
 import tempfile
 
 from pybedtools import BedTool
-from Iudex.intron_exon_counts import InsertionTableBuilder, InsertionRecord
+from Iudex.containers.python.intron_exon_counts import InsertionTableBuilder, InsertionRecord
 
 
 class InsertionTableBuilderTests(unittest.TestCase):

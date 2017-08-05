@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
  && rm -rf /var/lib/apt/lists/*
 
-
 # Setup environment variables
 ENV BEDTOOLS2_SOURCE="bedtools-2.26.0.tar.gz" \
     BEDTOOLS2_VERSION="2.26.0" \
@@ -36,3 +35,7 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v$BEDTOOLS2_VERSIO
 # Finally, install python packages
 RUN pip install pandas \
     pybedtools
+    
+
+COPY intron_exon_counts.py /src/
+CMD ["python", "/src/intron_exon_counts.py]
