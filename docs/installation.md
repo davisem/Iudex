@@ -20,3 +20,11 @@ $ docker pull emdavis/iudex -a
 $ git clone https://github.com/davisem/Iudex
 $ cd Iudex/
 ```
+
+### Step 4 -- Create a BWA index
+```
+$ wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz -O annotations/hg38
+$ cd annotations/hg38
+$ gunzip hg38.fa.gz
+$ docker run edavis/bwa:1.0 /bin/sh bwa index hg38.fa
+```
