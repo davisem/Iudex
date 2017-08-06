@@ -1,5 +1,4 @@
 *.fastq
-nextflow.config
 venv
 *.pyc
 nextflow_cloud.config
