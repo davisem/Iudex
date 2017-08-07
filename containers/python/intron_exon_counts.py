@@ -62,9 +62,7 @@ class InsertionRecord(object):
     def toIterable(self):
         """
         Retruns an iterable representation of the record
-
         """
-        
         return (self.chrom, self.start, self.orientation, self.gene)
 
     def getOrientation(self, bedtool_line):
@@ -80,12 +78,15 @@ class InsertionRecord(object):
         return bedtool_line.start if bedtool_line.strand == self.PLUS_STRAND else bedtool_line.stop
 
     def __repr__(self):
+
         return "<{}>:{},{},{},{}".format(self.__class__.__name__, self.chrom, self.start, self.orientation, self.gene)
 
     def __eq__(self, other):
+
         return all([self.chrom == other.chrom, self.start == other.start, self.orientation == other.orientation, self.gene==other.gene])
 
     def __hash__(self):
+
         return hash(self.__repr__())
 
 
@@ -177,11 +178,3 @@ if __name__ == '__main__':
 
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
     table_builder.buildTable(opts.bed_file, opts.output_file)
-    
-def gsp(dataframe):
-    dataframe['GSP'] = math.log((dataframe['sense'] / dataframe['antisense']), 2) * \
-            math.log((dataframe['sense'] * dataframe['antisense']), 10)
-    return dataframe
-
-
-myframe = pd.DataFrame({'sense':[1.0, 2.0], 'antisense':[1.0, 2.0]})
