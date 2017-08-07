@@ -81,11 +81,9 @@ process MakeInsertionTables {
     publishDir "${params.output_dir}/Insertions", mode: "copy"
 
     input:
-    
     file bam from aligned_bams
     file intron_bed
     file exon_bed
-
 
     output:
     file "${bam.baseName}.table" into insertion_table_csvs

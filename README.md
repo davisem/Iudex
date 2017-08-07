@@ -9,3 +9,4 @@ More Information
 ----------------
   - [Software Requirements](https://github.com/davisem/Iudex/blob/master/docs/software_requirements.md)
   - [Installation](https://github.com/davisem/Iudex/blob/master/docs/installation.md)
+  - [Usage](https://github.com.davisem/Iudex/blob/master/docs/usage.md)
