@@ -26,10 +26,10 @@ Eric Davis <emdavis48@gmail.com>
 ================================================================================
 */
 
-/*if( params.help ) {
+/if( params.help ) {
     help()
     return
-}*/
+}
 
 if( !nextflow.version.matches('0.25+') ) {
     println "This workflow requires Nextflow version 0.25 or greater -- You are running version $nextflow.version"
@@ -91,7 +91,6 @@ process MakeInsertionTables {
     file "${bam.baseName}.table" into insertion_table_csvs
 
     """
-
     python /src/intron_exon_counts.py -i ${intron_bed} -e ${exon_bed} -b ${bam} -o "${bam.baseName}.table"
     """
 }
