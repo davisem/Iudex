@@ -26,7 +26,7 @@ Eric Davis <emdavis48@gmail.com>
 ================================================================================
 */
 
-/if( params.help ) {
+if ( params.help ) {
     help()
     return
 }
@@ -50,7 +50,7 @@ exon_bed = file(params.exon_bed)
  */
 
 Channel
-    .fromPath( "${params.input_path}/*fastq")
+    .fromPath( "${params.input_path}/*fastq" )
     .ifEmpty { exit 1, "Fastq files could not be found in: ${params.input_path}" }
     .set { gene_trap_insertions }
 
