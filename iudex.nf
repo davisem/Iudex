@@ -11,8 +11,11 @@ if( !nextflow.version.matches('0.25+') ) {
     exit 1
 }
 
+if ( params.index ) {
+    index = Channel.fromPath(params.index).toSortedList()
+}
+
 threads = params.threads
-index = Channel.fromPath(params.index).toSortedList()
 intron_bed = file(params.intron_bed)
 exon_bed = file(params.exon_bed)
 
@@ -48,6 +51,9 @@ process AlignToGenome {
  */
 
 process MakeInsertionTables {
+
+    publishDir "${params.output_dir}/Insertions", mode: "copy"
+
     input:
     
     file bam from aligned_bams

@@ -12,6 +12,8 @@ import sys
 import argparse
 import pandas as pd
 from pybedtools import BedTool
+import math
+
 
 
 def parse_cmdline_params(cmdline_params):
@@ -88,8 +90,11 @@ class InsertionRecord(object):
 
 
 class InsertionTableBuilder(object):
+    
+    SENSE_KEY = 'sense'
+    ANTISENSE_KEY = 'antisense'
 
-    KEYS = ['sense', 'antisense', 'exon']
+    KEYS = [SENSE_KEY, ANTISENSE_KEY, 'exon']
 
     def __init__(self, intron_path, exon_path):
         self._intron_bedtool = BedTool(intron_path)
@@ -121,6 +126,17 @@ class InsertionTableBuilder(object):
         
         return pd.DataFrame.from_records([x.toIterable() for x in unique_insertions], columns=InsertionRecord.FIELD_NAMES)
 
+    def calcGsp(self, row):
+        """Calculates the GSP score for each gene in the dataset"""
+
+        sense_smooth = row[self.SENSE_KEY] + 1
+        antisense_smooth = row[self.ANTISENSE_KEY] + 1
+        
+        row['GSP'] = math.log((sense_smooth / antisense_smooth), 2) * \
+                math.log((sense_smooth * antisense_smooth), 10)
+        
+        return row
+
     def buildTable(self, input_file, output_file):
         """
         Builds a table containing the insertion counts.
@@ -148,9 +164,11 @@ class InsertionTableBuilder(object):
             count_dfs.append(counts)
         
         joined = pd.concat(count_dfs, axis=1)
-        
         filled = joined.fillna(value=0)
-        filled.to_csv(output_file, sep='\t')
+        # Adds the GSP score to the table
+        gsp_filled = filled.apply(self.calcGsp, axis=1)
+        
+        gsp_filled.to_csv(output_file, sep='\t')
 
 
 if __name__ == '__main__':
@@ -160,4 +178,10 @@ if __name__ == '__main__':
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
     table_builder.buildTable(opts.bed_file, opts.output_file)
     
+def gsp(dataframe):
+    dataframe['GSP'] = math.log((dataframe['sense'] / dataframe['antisense']), 2) * \
+            math.log((dataframe['sense'] * dataframe['antisense']), 10)
+    return dataframe
 
+
+myframe = pd.DataFrame({'sense':[1.0, 2.0], 'antisense':[1.0, 2.0]})
