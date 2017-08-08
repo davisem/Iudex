@@ -62,30 +62,45 @@ class InsertionRecord(object):
     def toIterable(self):
         """
         Retruns an iterable representation of the record
+        :return iter(str): A string generator of the record
         """
         return (self.chrom, self.start, self.orientation, self.gene)
 
     def getOrientation(self, bedtool_line):
         """
         Gets the orientation of the gene_trap insertion with resepect to the gene
+        :return str: The string key of the orientation.
         """
         return self.ORIENTATION_SENSE_KEY if bedtool_line.strand == bedtool_line.fields[self.GENE_STRAND_IDX] else self.ORIENTATION_ANTISENSE_KEY
 
     def getInsertionStart(self, bedtool_line):
         """
         Gets the start coordinate of the gene_trap insertion
+        :return int: The starting coordinate relative to the gene trap.
         """
         return bedtool_line.start if bedtool_line.strand == self.PLUS_STRAND else bedtool_line.stop
 
     def __repr__(self):
+        """
+        Repr of this class
+        :return str:
+        """
 
         return "<{}>:{},{},{},{}".format(self.__class__.__name__, self.chrom, self.start, self.orientation, self.gene)
 
     def __eq__(self, other):
+        """
+        Defines equalit:y behavior of this class
+        :return boolean: Is this equal to another record.
+        """
 
         return all([self.chrom == other.chrom, self.start == other.start, self.orientation == other.orientation, self.gene==other.gene])
 
     def __hash__(self):
+        """
+        Implements hashing behavior of this class
+        :return int: Hash value of this class.
+        """
 
         return hash(self.__repr__())
 
@@ -98,37 +113,52 @@ class InsertionTableBuilder(object):
     KEYS = [SENSE_KEY, ANTISENSE_KEY, 'exon']
 
     def __init__(self, intron_path, exon_path):
+        """
+        Init method for class
+        :param str intron_path: Path to an bed annotation of introns
+        :param str exon_path: Path to a bed annotation of exons
+        """
         self._intron_bedtool = BedTool(intron_path)
         self._exon_bedtool = BedTool(exon_path)
 
     def intersectIntronsSense(self, input_bedtool):
         """
         Intersect bedtool object with intron table
+        :param BedTool: A BedTool object
         """
         return input_bedtool.intersect(self._intron_bedtool, wa=True, wb=True, s=True)
 
     def intersectIntronsAntisense(self, input_bedtool):
         """
         Intersect bedtool with antisense table
+        :param input_bedtool: A BedTool object
         """
         return input_bedtool.intersect(self._intron_bedtool, wa=True, wb=True, S=True)
 
     def intersectExons(self, input_bedtool):
         """
         Intersect with exon table
+        :param input_bedtool: A BedTool object
+        :
         """
         return input_bedtool.intersect(self._exon_bedtool, wa=True, wb=True)
 
     def toDataFrame(self, input_bedtool):
         """
-        convert to a dataframe
+        Convert to a dataframe
+        :param input_bedtool: A BedTool object
+        :return DataFrame: A dataframe containing insertion information.
         """
         unique_insertions = {InsertionRecord(line) for line in input_bedtool}
         
         return pd.DataFrame.from_records([x.toIterable() for x in unique_insertions], columns=InsertionRecord.FIELD_NAMES)
 
     def calcGsp(self, row):
-        """Calculates the GSP score for each gene in the dataset"""
+        """
+        Calculates the GSP score for each gene in the dataset
+        :param row: A dataframe row
+        :return row: A 
+        """
 
         sense_smooth = row[self.SENSE_KEY] + 1
         antisense_smooth = row[self.ANTISENSE_KEY] + 1
@@ -159,8 +189,9 @@ class InsertionTableBuilder(object):
 
         count_dfs = []
         for i, curr_frame in enumerate(frames):
-            curr_frame['counts'] = curr_frame.groupby(['chrom', 'start', 'gene', 'insertion_orientation'])['start'].transform('count')
-            counts = pd.pivot_table(curr_frame, index=['gene'], values=['counts'])
+            counts = curr_frame.groupby(['chrom', 'gene', 'insertion_orientation'])['start'].apply(lambda x:x.nunique()).reset_index()
+            counts.set_index('gene', inplace=True)
+            counts.drop(['chrom', 'insertion_orientation'], inplace=True, axis=1)
             counts.columns = [self.KEYS[i]]
             count_dfs.append(counts)
         
@@ -178,3 +209,4 @@ if __name__ == '__main__':
 
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
     table_builder.buildTable(opts.bed_file, opts.output_file)
+
