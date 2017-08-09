@@ -14,7 +14,7 @@ This `docker pull` command will download each of the required tools to run the p
 ```
 $ docker pull emdavis/iudex -a 
 ```
-The following images being pulled down
+The following images should be pulled down from Docker Hub.
 ```
 bwa: Pulling from emdavis/iudex
 Digest: sha256:8f5d1d70831f8a52fb92bc67a10a3bd5928f11953d589f386e0cca97e0fbb76e
