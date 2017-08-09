@@ -44,23 +44,43 @@ if ( params.index ) {
 threads = params.threads
 intron_bed = file(params.intron_bed)
 exon_bed = file(params.exon_bed)
-
-/*
- * Aligns fastq files to hg38
- */
+false_positive_probability = params.false_positive_probability
 
 Channel
     .fromPath( "${params.input_path}/*fastq" )
     .ifEmpty { exit 1, "Fastq files could not be found in: ${params.input_path}" }
     .set { gene_trap_insertions }
 
+/*
+ * Pre-filters duplicate reads from the input fastqs
+ */
+
+process FilterFastq {
+
+    publishDir "${params.output_dir}/FilterFastq", mode: "copy"
+    
+    input:
+    file fastq from gene_trap_insertions
+
+    output:
+    file "${fastq.baseName}.filtered" into filtered_fastqs
+
+    """
+    /src/fastq_filterer ${fastq} "${fastq.baseName}.filtered" ${false_positive_probability}
+    """
+
+}
+
+/*
+ * Aligns fastq files to hg38
+ */
 
 process AlignToGenome {
 
     publishDir "${params.output_dir}/Alignment", mode: "copy"
 
     input:
-    file fastq from gene_trap_insertions
+    file fastq from filtered_fastqs
     file idx from index
 
     output:
