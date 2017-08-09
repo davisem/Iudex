@@ -52,7 +52,7 @@ Channel
     .set { gene_trap_insertions }
 
 /*
- * Pre-filters duplicate reads from the input fastqs
+ * Pre-filters duplicate reads from the input fastqs.
  */
 
 process FilterFastq {

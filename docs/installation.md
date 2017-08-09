@@ -14,6 +14,16 @@ This `docker pull` command will download each of the required tools to run the p
 ```
 $ docker pull emdavis/iudex -a 
 ```
+The following images being pulled down
+```
+bwa: Pulling from emdavis/iudex
+Digest: sha256:8f5d1d70831f8a52fb92bc67a10a3bd5928f11953d589f386e0cca97e0fbb76e
+fastq_filterer: Pulling from emdavis/iudex
+Digest: sha256:3c68785e7e2dbd57f8acc9a6d481ed03a8b60d71a7dfe1f65b0060b78b4ccccd
+insertion_counts: Pulling from emdavis/iudex
+Digest: sha256:e65aa5148f0555e0d019eccf9acfa1d3dbce9cf0818407cf4463f28f24c0467c
+Status: Image is up to date for emdavis/iudex
+```
 
 ### Step 3 -- Download Github Repository
 ```
