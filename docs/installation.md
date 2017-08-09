@@ -38,3 +38,13 @@ $ cd annotations/hg38
 $ gunzip hg38.fa.gz
 $ docker run edavis/bwa:1.0 /bin/sh bwa index hg38.fa
 ```
+### Step 5 -- Download Iudex repo
+$ git clone https://github.com/davisem/Iudex.git
+$ cd Iudex
+
+### Step 6 -- Run some test data
+$ nextflow iudex.nf --output_dir "/your/output/directory" --index "path/to/your/genome/index/folder/*"
+
+### Step 7 -- Do Science!
+Now your ready to analyize some real data. Just point iudex to a folder containing your fastq data files
+$ nextflow iudex.nf --outupt_dir "/your/output/directory" --index "path/to/your/genome/index/folder/*" --input_path "/path/to/fastqs"
