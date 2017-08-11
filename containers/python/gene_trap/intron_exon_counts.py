@@ -8,12 +8,12 @@ __maintainer__ = "Eric Davis"
 __email__ = "emdavis48@gmail.com"
 __status__ = ""
 
-import sys
 import argparse
+import math
+import sys
+
 import pandas as pd
 from pybedtools import BedTool
-import math
-
 
 
 def parse_cmdline_params(cmdline_params):
@@ -168,7 +168,7 @@ class InsertionTableBuilder(object):
         
         return row
 
-    def buildTable(self, input_file, output_file):
+    def buildTable(self, input_file):
         """
         Builds a table containing the insertion counts.
         """
@@ -198,13 +198,12 @@ class InsertionTableBuilder(object):
         joined = pd.concat(count_dfs, axis=1)
         filled = joined.fillna(value=0)
         # Adds the GSP score to the table
-        gsp_filled = filled.apply(self.calcGsp, axis=1)
-        
-        gsp_filled.to_csv(output_file, sep='\t')
+        return filled.apply(self.calcGsp, axis=1)
 
 
 if __name__ == '__main__':
 
     opts = parse_cmdline_params(sys.argv[1:])
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
-    table_builder.buildTable(opts.bed_file, opts.output_file)
+    insertion_dataframe = table_builder.buildTable(opts.bed_file)
+    insertion_dataframe.to_csv(opts.output_file, sep='\t')
