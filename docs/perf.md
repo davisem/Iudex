@@ -4,7 +4,7 @@ This pipeline has been assembled using the reactive workflow framework Nextflow.
 
 # OSX
 
-There is currently no kernal supprot for Docker on OSX. This means Docker has to run a seperate kernal using virtualization, and as a result, performance degrades severely. Luckily you still have options for running Iudex for peak performance.
+There is currently no kernal supprot for Docker on OSX. This means Docker has to run a seperate kernal using virtualization, and as a result, performance degrades severely. Luckily you still have options for running Iudex at peak performance.
 
 *Option 1:*
 Buy a Linux box.
