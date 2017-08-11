@@ -14,5 +14,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY fastq_filterer.cpp /src/
 COPY bloom/bloom_filter.hpp /src/
 
-RUN g++ -O3 /src/fastq_filterer.cpp -o /src/fastq_filterer
+RUN g++ -O2 /src/fastq_filterer.cpp -o /src/fastq_filterer
 CMD [./fastq_filterer]
