@@ -13,7 +13,7 @@ import unittest
 import tempfile
 
 from pybedtools import BedTool
-from Iudex.containers.python.intron_exon_counts import InsertionTableBuilder, InsertionRecord
+from gene_trap.intron_exon_counts import InsertionTableBuilder, InsertionRecord
 
 INPUT_BED=\
 """chr1	101	102	BLAH	0	+
