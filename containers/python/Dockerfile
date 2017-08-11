@@ -33,9 +33,8 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v$BEDTOOLS2_VERSIO
     && rm /opt/$BEDTOOLS2_SOURCE
 
 # Finally, install python packages
-RUN pip install pandas \
-    pybedtools
-    
+RUN pip install pandas pybedtools nose2
+COPY gene_trap/ /gene_trap/
+ENV PYTHONPATH /
 
-COPY intron_exon_counts.py /src/
-CMD ["python", "/src/intron_exon_counts.py]
+CMD ["python", "/gene_trap/intron_exon_counts.py]

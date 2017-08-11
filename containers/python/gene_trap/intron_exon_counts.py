@@ -205,8 +205,6 @@ class InsertionTableBuilder(object):
 
 if __name__ == '__main__':
 
-    opts= parse_cmdline_params(sys.argv[1:])
-
+    opts = parse_cmdline_params(sys.argv[1:])
     table_builder = InsertionTableBuilder(opts.intron_bed, opts.exon_bed)
     table_builder.buildTable(opts.bed_file, opts.output_file)
-
