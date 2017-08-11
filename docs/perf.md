@@ -2,7 +2,8 @@
 
 This pipeline has been assembled using the reactive workflow framework Nextflow. Each process in the pipeline executed in a Docker container, because we're doing high impact science and reproducibility is important. Depending on your system, these design decisions do have performance implications, especially if running OSX.
 
-**OSX**
+# OSX
+
 There is currently no kernal supprot for Docker on OSX. This means Docker has to run a seperate kernal using virtualization, and as a result, performance degrades severely. Luckily you still have options for running Iudex for peak performance.
 
 *Option 1:*
@@ -17,5 +18,6 @@ $ ./fastq_filterer duplicated.fastq output_name.fastq 0.0001
 ```
 
 
-**Linux**
+# Linux
+
 Things are running optimally on Linux. 
