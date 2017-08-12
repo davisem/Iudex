@@ -109,6 +109,6 @@ process MakeInsertionTables {
     file "${bam.baseName}.table" into insertion_table_csvs
 
     """
-    python /src/intron_exon_counts.py -i ${intron_bed} -e ${exon_bed} -b ${bam} -o "${bam.baseName}.table"
+    python /gene_trap/intron_exon_counts.py -i ${intron_bed} -e ${exon_bed} -b ${bam} -o "${bam.baseName}.table"
     """
 }
